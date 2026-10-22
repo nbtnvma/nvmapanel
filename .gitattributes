@@ -1,0 +1,6 @@
+# Everything runs on Linux: keep LF in the repository and in checkouts.
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.ico binary
+*.woff2 binary

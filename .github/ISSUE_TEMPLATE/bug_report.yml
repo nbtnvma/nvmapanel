@@ -1,0 +1,31 @@
+name: Báo lỗi / Bug report
+description: Lỗi khi cài đặt hoặc sử dụng NVMA Panel
+labels: [bug]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Phiên bản (nvma version)
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Hệ điều hành
+      options: [Ubuntu 24.04, Ubuntu 22.04, AlmaLinux 9, Rocky Linux 9, Khác / Other]
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: Mô tả lỗi và cách tái hiện / What happened, steps to reproduce
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Log (journalctl -u nvma-web -u nvma-agent -n 100, /var/log/nvma-install.log)
+      render: text
+  - type: markdown
+    attributes:
+      value: "⚠️ Không đăng mật khẩu, license key hay địa chỉ panel. Lỗ hổng bảo mật: xem SECURITY.md."
