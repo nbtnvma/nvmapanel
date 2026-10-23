@@ -7,8 +7,8 @@
 
 [nvma.site](https://nvma.site) · [Bản quyền / License](https://license.nvma.site/) · [Báo lỗi / Issues](../../issues)
 
-> Repository này chỉ chứa **bản cài đặt và bản phát hành** (giống cách Laragon phát hành). Mã nguồn không công khai.
-> *This repository only hosts the installer and release binaries. The source code is private.*
+> Repository này chỉ chứa **bản cài đặt và bản phát hành**.
+> *This repository only hosts the installer and release binaries.
 
 ## Cài đặt / Install
 
