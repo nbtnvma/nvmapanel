@@ -5,29 +5,25 @@
 **Control panel nhẹ cho VPS Linux** — website, database, email, ứng dụng Node/Go và game server trên một giao diện.
 *A lightweight control panel for Linux servers — websites, databases, e-mail, Node/Go apps and game servers.*
 
-[nvma.site](https://nvma.site) · [Bản quyền / License](https://license.nvma.site/) · [Báo lỗi / Issues](../../issues)
+[nvma.site](https://nvma.site) · [Bản quyền / License](https://license.nvma.site/products/nvma-panel) · [Báo lỗi / Issues](../../issues)
 
-> Repository này chỉ chứa **bản cài đặt và bản phát hành**.
-> *This repository only hosts the installer and release binaries.
+> Repository này chỉ chứa **bản cài đặt và bản phát hành** (giống cách Laragon phát hành). Mã nguồn không công khai.
+> *This repository only hosts the installer and release binaries. The source code is private.*
 
 ## Cài đặt / Install
 
-Trên VPS **mới cài** Ubuntu 22.04 / 24.04, AlmaLinux 9 hoặc Rocky Linux 9 (amd64/arm64, tối thiểu 512 MB RAM):
+Trên VPS **mới cài** Ubuntu 22.04 / 24.04, AlmaLinux 9, Rocky Linux 9 hoặc Oracle Linux 9 (amd64/arm64, tối thiểu 512 MB RAM):
 
 ```bash
 curl -fsSL https://github.com/nbtnvma/nvmapanel/releases/latest/download/install.sh | sudo bash
 ```
 
-### Bản thử nghiệm / Pre-release
-
-Khi chưa có bản chính thức, cài bản beta mới nhất trong mục [Releases](../../releases) (thay số phiên bản):
-*Until the first stable release, install a beta from [Releases](../../releases):*
-
-```bash
-curl -fsSL https://github.com/nbtnvma/nvmapanel/releases/download/v0.2.0-beta.1/install.sh | sudo bash
-```
-
-> Bản beta chưa được kiểm thử rộng trên máy chủ thật — hãy dùng VPS thử nghiệm. *Betas are for test servers.*
+> **Bản hiện tại: 0.2.0-beta.2 (thử nghiệm).** Chưa được kiểm thử rộng trên máy chủ thật — hãy dùng VPS thử nghiệm.
+> *Current release: 0.2.0-beta.2 (beta) — please use a test server.* Cài một phiên bản cụ thể / a specific version:
+> `curl -fsSL https://github.com/nbtnvma/nvmapanel/releases/download/v0.2.0-beta.2/install.sh | sudo bash`
+>
+> Trên **Oracle Cloud, AWS, Google Cloud, Azure**: mở thêm cổng 80, 443 và cổng panel ở tường lửa của nhà cung cấp
+> (Security List / Security Group…). *On clouds, also open ports 80, 443 and the panel port in the provider firewall.*
 
 Cài xong, địa chỉ panel và mật khẩu được in ra màn hình và lưu ở `/root/nvma-credentials.txt`.
 *The panel URL and password are printed at the end and saved to `/root/nvma-credentials.txt`.*
@@ -62,7 +58,7 @@ Website, database và cấu hình được giữ nguyên. *Websites, databases a
 
 ## Phiên bản / Editions
 
-**Free** (không cần key) · **Pro** · **Business** · **Agency** — xem [license.nvma.site](https://license.nvma.site/).
+**Free** (không cần key) · **Pro** · **Business** · **Agency** — xem [license.nvma.site](https://license.nvma.site/products/nvma-panel).
 Hết hạn license chỉ khoá tính năng trả phí; website và ứng dụng của bạn vẫn chạy bình thường.
 
 ## Bảo mật / Security

@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.2.0 — bản thử nghiệm 0.2.0-beta.1 (2026-10-22) / beta
+## 0.2.0 — bản thử nghiệm 0.2.0-beta.2 (2026-10-23) / beta
 
 **Free**
 - Website Laravel: thư mục gốc tuỳ chọn (`public/`), mẫu Laravel (scheduler tự thêm), PHP CLI và Composer theo từng site.
@@ -21,6 +21,9 @@
 - Giấy phép qua SDK chính thức của license.nvma.site 2.1: số tài khoản theo giới hạn của gói, thông báo khi có bản mới (thông tin đã ký).
 - Cài đặt từ GitHub Releases hoặc bản sao trên license.nvma.site; chữ ký Ed25519 được kiểm tra ở cả hai nguồn.
 - Logo NVMA chính thức.
+- Cloud (Oracle Cloud, AWS, Google Cloud, Azure): tự nhận IP công khai khi máy nằm sau NAT (DNS, email, PTR), nhắc mở cổng ở tường lửa nền tảng, gỡ luật iptables REJECT có sẵn của image Ubuntu trên Oracle Cloud. Hỗ trợ Oracle Linux 9. MySQL trên Ubuntu ARM dùng gói của Ubuntu.
+- Bảo mật: rà soát toàn bộ và sửa các lỗi cô lập giữa website (trình quản lý file, log, FTP, symlink, khôi phục sao lưu), quyền user Linux, quyền DNS, Redis có mật khẩu, giới hạn đăng nhập, ràng buộc người gửi email. Tự cập nhật bảo mật hệ điều hành.
+- Kiểm tra cổng (Tường lửa → Kiểm tra cổng): dịch vụ đang lắng nghe, tường lửa có cho phép không, cảnh báo dịch vụ nội bộ bị mở ra ngoài, và thử kết nối qua IP công khai (đi qua tường lửa của cloud).
 
 ## 0.1.0 — MVP
 - Engine riêng (Go), web không root + agent root, SQLite, Ubuntu 22.04/24.04, AlmaLinux 9, Rocky 9.
