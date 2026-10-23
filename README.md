@@ -5,10 +5,10 @@
 **Control panel nhẹ cho VPS Linux** — website, database, email, ứng dụng Node/Go và game server trên một giao diện.
 *A lightweight control panel for Linux servers — websites, databases, e-mail, Node/Go apps and game servers.*
 
-[nvma.site](https://nvma.site) · [Bản quyền / License](https://license.nvma.site/products/nvma-panel) · [Báo lỗi / Issues](../../issues)
+[nvma.site](https://nvma.site) · [Bản quyền / License](https://license.nvma.site/) · [Báo lỗi / Issues](../../issues)
 
-> Repository này chỉ chứa **bản cài đặt và bản phát hành** (giống cách Laragon phát hành). Mã nguồn không công khai.
-> *This repository only hosts the installer and release binaries. The source code is private.*
+> Repository này chỉ chứa **bản cài đặt và bản phát hành**.
+> *This repository only hosts the installer and release binaries.*
 
 ## Cài đặt / Install
 
@@ -58,7 +58,7 @@ Website, database và cấu hình được giữ nguyên. *Websites, databases a
 
 ## Phiên bản / Editions
 
-**Free** (không cần key) · **Pro** · **Business** · **Agency** — xem [license.nvma.site](https://license.nvma.site/products/nvma-panel).
+**Free** (không cần key) · **Pro** · **Business** · **Agency** — xem [license.nvma.site](https://license.nvma.site/).
 Hết hạn license chỉ khoá tính năng trả phí; website và ứng dụng của bạn vẫn chạy bình thường.
 
 ## Bảo mật / Security
