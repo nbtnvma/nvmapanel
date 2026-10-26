@@ -18,12 +18,14 @@ Trên VPS **mới cài** Ubuntu 22.04 / 24.04, AlmaLinux 9, Rocky Linux 9 hoặc
 curl -fsSL https://github.com/nbtnvma/nvmapanel/releases/latest/download/install.sh | sudo bash
 ```
 
-> **Bản hiện tại: 0.2.0-beta.2 (thử nghiệm).** Chưa được kiểm thử rộng trên máy chủ thật — hãy dùng VPS thử nghiệm.
-> *Current release: 0.2.0-beta.2 (beta) — please use a test server.* Cài một phiên bản cụ thể / a specific version:
-> `curl -fsSL https://github.com/nbtnvma/nvmapanel/releases/download/v0.2.0-beta.2/install.sh | sudo bash`
+> **Bản hiện tại: 0.2.0.** Đã chạy thật trên Ubuntu 24.04 ARM (AWS EC2). Ubuntu 22.04, AlmaLinux/Rocky/Oracle Linux 9
+> và máy amd64 được hỗ trợ; báo lỗi giúp tại [Issues](../../issues).
+> *Current release: 0.2.0, run on a real Ubuntu 24.04 ARM server (AWS EC2).* Cài một phiên bản cụ thể / a specific version:
+> `curl -fsSL https://github.com/nbtnvma/nvmapanel/releases/download/v0.2.0/install.sh | sudo bash`
 >
-> Trên **Oracle Cloud, AWS, Google Cloud, Azure**: mở thêm cổng 80, 443 và cổng panel ở tường lửa của nhà cung cấp
-> (Security List / Security Group…). *On clouds, also open ports 80, 443 and the panel port in the provider firewall.*
+> Trên **Oracle Cloud, AWS, Google Cloud, Azure**: mở thêm cổng 80, 443, cổng panel (mặc định in ra khi cài) và **cổng
+> panel + 1** (phpMyAdmin/Adminer) ở tường lửa của nhà cung cấp (Security List / Security Group…).
+> *On clouds, also open ports 80, 443, the panel port and the panel port + 1 (database tools) in the provider firewall.*
 
 Cài xong, địa chỉ panel và mật khẩu được in ra màn hình và lưu ở `/root/nvma-credentials.txt`.
 *The panel URL and password are printed at the end and saved to `/root/nvma-credentials.txt`.*
@@ -40,6 +42,9 @@ sha256sum -c nvma-panel-linux.tar.gz.sha256
 
 ## Nâng cấp / Upgrade
 
+Từ 0.2.0: **Cài đặt → Cập nhật & sao lưu cấu hình → Cập nhật ngay** (gói có chữ ký, tự quay lại bản cũ nếu lỗi).
+*From 0.2.0: Settings → Updates → Update now (signed package, automatic rollback).* Hoặc / or:
+
 ```bash
 curl -fsSL https://github.com/nbtnvma/nvmapanel/releases/latest/download/install.sh | sudo bash -s -- --upgrade
 ```
@@ -55,6 +60,8 @@ Website, database và cấu hình được giữ nguyên. *Websites, databases a
 | Mất 2FA | `nvma user 2fa-reset admin` |
 | Đổi cổng / đường dẫn | `nvma panel port 28417` · `nvma panel path reset` |
 | Bị khoá IP | `nvma panel allowlist clear` |
+| Khôi phục cấu hình panel | `nvma panel restore /var/backups/nvma/panel-….tar.gz` |
+| Kiểm tra license | `nvma license diagnose` |
 
 ## Phiên bản / Editions
 
