@@ -1,5 +1,54 @@
 # Changelog
 
+## 0.3.0 — 2026-10-29
+
+Nâng cấp từ 0.2.0: **Cài đặt → Cập nhật → Cập nhật ngay**.
+
+**Mọi VPS, không chỉ cloud lớn**
+- **Debian 12 và 13** (amd64, arm64). PHP nhiều phiên bản từ packages.sury.org, tự cập nhật bảo mật; MySQL chính thức trên
+  amd64 (Debian ARM chỉ có MariaDB vì Debian và Oracle đều không có gói MySQL cho ARM); Docker từ kho chính thức; Dovecot 2.4
+  của Debian 13 được cấu hình theo cú pháp mới.
+- Trình cài dừng sớm và nói rõ lý do khi máy là container OpenVZ/LXC, ổ trống dưới 2 GB, cổng 80/443 đang bị chương trình
+  khác dùng, hoặc đã có panel khác (thêm CloudPanel, FastPanel, ISPConfig, Webmin, VestaCP); nhắc khi RAM dưới 1 GB.
+- Cuối quá trình cài và trang Tường lửa nhắc mở cổng ở tường lửa trong trang quản trị của **mọi** nhà cung cấp. Nhận diện
+  thêm Alibaba Cloud, Tencent Cloud.
+
+**Mới**
+- **API token** (Tài khoản → API token): quyền đọc hoặc đọc/ghi, hạn dùng, giới hạn IP, chỉ hiện một lần, tạo token cần nhập
+  lại mật khẩu + 2FA. Dùng được cho website, database, sao lưu, ứng dụng, cron, tác vụ, tên miền của khách; Terminal, quản lý
+  file, tài khoản, cài đặt và license vẫn cần đăng nhập.
+- **Webhook** (Pro, Giám sát → Cảnh báo): sự kiện JSON ký HMAC-SHA256 cho sao lưu, deploy, dịch vụ lỗi, SSL sắp hết hạn,
+  CPU/RAM/ổ đĩa cao, website tạo/xoá, mã độc, bản panel mới; tự gửi lại khi lỗi.
+- **Tên miền của khách** (Website → Tổng quan, hoặc qua API): gắn hàng trăm tên miền riêng vào một website, mỗi tên một chứng
+  chỉ Let's Encrypt tự cấp, chờ DNS 48 giờ, tự gia hạn. **Website nhận mọi tên miền con** `*.domain` (admin) cho ứng dụng
+  nhiều khách.
+- **Quét mã độc** (module ClamAV, Cài đặt → Quét mã độc): mỗi đêm lúc 3:30 và theo yêu cầu, ưu tiên thấp nhất, không đi theo
+  link; cách ly file một cú nhấp; báo qua Telegram và webhook.
+- **White-label** (Business, Cài đặt → Thương hiệu riêng): tên, dòng giới thiệu, logo, favicon, màu; ẩn số phiên bản.
+
+**Bảo mật** (rà soát toàn bộ phần mới trước khi phát hành)
+- Website không thể nhận tên miền của panel, máy chủ mail hay webmail (kể cả khi gắn làm tên miền của khách, alias, staging);
+  tài khoản thường không lấy được tên miền con của chúng hay tên miền khách đã gắn vào website của người khác.
+- API token không tạo được cron chạy bằng root; đổi mật khẩu thì mọi API token của tài khoản bị thu hồi.
+- Cách ly mã độc quét lại đúng file trước khi di chuyển, nên tên file giả mạo không thể khiến panel di chuyển file của người khác.
+- Lỗi gửi webhook không còn lộ chi tiết kết nối nội bộ; log chỉ giữ tên máy của URL webhook.
+- Khoá repo MySQL được ghim bằng SHA-256.
+
+**Sửa lỗi**
+- **Email chế độ đầy đủ** không khởi động được trên Ubuntu, Debian 12 và AlmaLinux/Rocky/Oracle Linux 9 (Dovecot 2.3 báo
+  `Garbage after '{'`); trên Ubuntu/Debian, OpenDKIM còn không đọc được khoá DKIM nên mọi thư gửi đi bị từ chối
+  (`4.7.1 Service unavailable`). Sau khi nâng cấp, lưu lại cài đặt email một lần để áp dụng.
+- **Cài MySQL trên máy amd64** (Ubuntu, Debian, AlmaLinux/Rocky) lỗi vì khoá ký của repo.mysql.com hết hạn ngày 22/10/2025;
+  máy đã cài MySQL từ repo này còn bị hỏng `apt update` (và cập nhật bảo mật tự động). Panel tự thay khoá mới khi nâng cấp.
+- Cài PHP trên Debian có thể làm gói php-fpm lỗi (khởi động lại quá nhiều lần) và báo nhầm thiếu extension.
+- **AlmaLinux/Rocky/Oracle Linux 9**: cài MySQL dừng ở bước chuyển root sang đăng nhập qua socket; `validate_password` của
+  MySQL chặn tạo database và phpMyAdmin; SELinux chặn Dovecot ghi thư vào `/var/vmail`; `sudo nvma …` không tìm thấy lệnh.
+- Xoá bản sao lưu cuối cùng của một site thì xoá luôn thư mục rỗng của site đó.
+- Cài Webmail không còn ghi vào thư mục dữ liệu đã thuộc user webmail.
+- Cài phpMyAdmin lần đầu trên máy mới báo lỗi nhóm `nvmatools`.
+- Trình cài bị dừng giữa chừng: chạy lại sẽ cài tiếp thay vì báo "đã cài"; thông tin đăng nhập được lưu ngay khi tạo
+  tài khoản admin. Lệnh `nvma setup`/`nvma module` không còn tạo thư mục khoá kín khi shell root đặt umask 077.
+
 ## 0.2.0 — 2026-10-26
 
 Bản chính thức đầu tiên của dòng 0.2 (gồm mọi thứ của 0.2.0-beta.1 và beta.2, liệt kê ở cuối mục này).

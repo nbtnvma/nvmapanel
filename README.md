@@ -12,20 +12,24 @@
 
 ## Cài đặt / Install
 
-Trên VPS **mới cài** Ubuntu 22.04 / 24.04, AlmaLinux 9, Rocky Linux 9 hoặc Oracle Linux 9 (amd64/arm64, tối thiểu 512 MB RAM):
+Trên VPS hoặc máy chủ riêng **mới cài** Ubuntu 22.04 / 24.04, Debian 12 / 13, AlmaLinux 9, Rocky Linux 9 hoặc Oracle Linux 9
+(amd64/arm64, KVM/Xen/VMware/Hyper-V hoặc máy thật, tối thiểu 512 MB RAM — khuyên dùng 1 GB):
+*On a freshly installed VPS or dedicated server (not an OpenVZ/LXC container):*
 
 ```bash
 curl -fsSL https://github.com/nbtnvma/nvmapanel/releases/latest/download/install.sh | sudo bash
 ```
 
-> **Bản hiện tại: 0.2.0.** Đã chạy thật trên Ubuntu 24.04 ARM (AWS EC2). Ubuntu 22.04, AlmaLinux/Rocky/Oracle Linux 9
-> và máy amd64 được hỗ trợ; báo lỗi giúp tại [Issues](../../issues).
-> *Current release: 0.2.0, run on a real Ubuntu 24.04 ARM server (AWS EC2).* Cài một phiên bản cụ thể / a specific version:
-> `curl -fsSL https://github.com/nbtnvma/nvmapanel/releases/download/v0.2.0/install.sh | sudo bash`
+> **Bản hiện tại: 0.3.0.** Đã chạy thật trên Ubuntu 22.04 / 24.04, Debian 12 / 13, AlmaLinux 9 và Rocky Linux 9
+> (amd64; Ubuntu 24.04 và Debian 13 cả arm64). Oracle Linux 9 được hỗ trợ; báo lỗi giúp tại [Issues](../../issues).
+> *Current release: 0.3.0, run on real Ubuntu 22.04/24.04, Debian 12/13, AlmaLinux 9 and Rocky Linux 9 servers
+> (amd64; Ubuntu 24.04 and Debian 13 on arm64 too).* Cài một phiên bản cụ thể / a specific version:
+> `curl -fsSL https://github.com/nbtnvma/nvmapanel/releases/download/v0.3.0/install.sh | sudo bash`
 >
-> Trên **Oracle Cloud, AWS, Google Cloud, Azure**: mở thêm cổng 80, 443, cổng panel (mặc định in ra khi cài) và **cổng
-> panel + 1** (phpMyAdmin/Adminer) ở tường lửa của nhà cung cấp (Security List / Security Group…).
-> *On clouds, also open ports 80, 443, the panel port and the panel port + 1 (database tools) in the provider firewall.*
+> Nếu nhà cung cấp có **tường lửa trong trang quản trị** (Oracle Cloud, AWS, Google Cloud, Azure luôn có; nhiều VPS có
+> tuỳ chọn Cloud Firewall): mở cổng 80, 443, cổng panel (in ra khi cài) và **cổng panel + 1** (phpMyAdmin/Adminer) ở đó.
+> *If your provider has a firewall in its dashboard (always on Oracle Cloud, AWS, Google Cloud, Azure), allow ports 80,
+> 443, the panel port and the panel port + 1 there too.*
 
 Cài xong, địa chỉ panel và mật khẩu được in ra màn hình và lưu ở `/root/nvma-credentials.txt`.
 *The panel URL and password are printed at the end and saved to `/root/nvma-credentials.txt`.*
