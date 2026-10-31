@@ -20,11 +20,11 @@ Trên VPS hoặc máy chủ riêng **mới cài** Ubuntu 22.04 / 24.04, Debian 1
 curl -fsSL https://github.com/nbtnvma/nvmapanel/releases/latest/download/install.sh | sudo bash
 ```
 
-> **Bản hiện tại: 0.3.0.** Đã chạy thật trên Ubuntu 22.04 / 24.04, Debian 12 / 13, AlmaLinux 9 và Rocky Linux 9
-> (amd64; Ubuntu 24.04 và Debian 13 cả arm64). Oracle Linux 9 được hỗ trợ; báo lỗi giúp tại [Issues](../../issues).
-> *Current release: 0.3.0, run on real Ubuntu 22.04/24.04, Debian 12/13, AlmaLinux 9 and Rocky Linux 9 servers
-> (amd64; Ubuntu 24.04 and Debian 13 on arm64 too).* Cài một phiên bản cụ thể / a specific version:
-> `curl -fsSL https://github.com/nbtnvma/nvmapanel/releases/download/v0.3.0/install.sh | sudo bash`
+> **Bản hiện tại: 0.3.1.** Đã chạy thật trên Ubuntu 22.04 / 24.04, Debian 12 / 13, AlmaLinux 9, Rocky Linux 9 và
+> Oracle Linux 9 (amd64; Ubuntu 24.04 và Debian 13 cả arm64). Báo lỗi giúp tại [Issues](../../issues).
+> *Current release: 0.3.1, run on real Ubuntu 22.04/24.04, Debian 12/13, AlmaLinux 9, Rocky Linux 9 and Oracle Linux 9
+> servers (amd64; Ubuntu 24.04 and Debian 13 on arm64 too).* Cài một phiên bản cụ thể / a specific version:
+> `curl -fsSL https://github.com/nbtnvma/nvmapanel/releases/download/v0.3.1/install.sh | sudo bash`
 >
 > Nếu nhà cung cấp có **tường lửa trong trang quản trị** (Oracle Cloud, AWS, Google Cloud, Azure luôn có; nhiều VPS có
 > tuỳ chọn Cloud Firewall): mở cổng 80, 443, cổng panel (in ra khi cài) và **cổng panel + 1** (phpMyAdmin/Adminer) ở đó.
@@ -60,8 +60,10 @@ Website, database và cấu hình được giữ nguyên. *Websites, databases a
 | Việc | Lệnh |
 |---|---|
 | Xem URL panel | `nvma panel info` |
-| Quên mật khẩu | `nvma user passwd admin` |
-| Mất 2FA | `nvma user 2fa-reset admin` |
+| Xem tên tài khoản | `nvma user list` (từ 0.3.1 tài khoản đầu tiên tên `nvma`, bản trước là `admin`) |
+| Quên mật khẩu | `nvma user passwd nvma` |
+| Mất 2FA | `nvma user 2fa-reset nvma` |
+| Đổi tên đăng nhập | `nvma user rename nvma ten-moi` |
 | Đổi cổng / đường dẫn | `nvma panel port 28417` · `nvma panel path reset` |
 | Bị khoá IP | `nvma panel allowlist clear` |
 | Khôi phục cấu hình panel | `nvma panel restore /var/backups/nvma/panel-….tar.gz` |

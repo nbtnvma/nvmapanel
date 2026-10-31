@@ -1,5 +1,28 @@
 # Changelog
 
+## 0.3.1 — 2026-11-01
+
+Nâng cấp: **Cài đặt → Cập nhật → Cập nhật ngay**.
+
+**Bảo mật**
+- `trust_proxy` chỉ tin `X-Forwarded-For` khi proxy gửi kèm `proxy_secret` (header `X-NVMA-Proxy`); thiếu thì bỏ qua và ghi cảnh báo.
+  Trước đây một chương trình chạy trên chính máy chủ có thể tự chọn IP khi `trust_proxy` được bật tay.
+- Bước tự kiểm DNS trước khi cấp SSL không còn gọi tới địa chỉ nội bộ (loopback, mạng riêng, link-local) và không trả
+  chi tiết phản hồi về cho người dùng.
+- Admin xem và thu hồi được API token của mọi tài khoản (Tài khoản → API token của mọi tài khoản).
+
+**Mới**
+- **Đổi tên đăng nhập** (Tài khoản → biểu tượng đổi tên, hoặc `nvma user rename <tên> <tên-mới>` qua SSH). Mật khẩu, 2FA,
+  API token, website và database giữ nguyên; phiên đang mở không bị đăng xuất.
+- Tài khoản quản trị đầu tiên của bản cài mới tên **`nvma`** (trước đây `admin`; máy đã cài giữ nguyên tên). Đặt tên khác
+  khi cài: `--admin <tên>`. Xem tên tài khoản: `nvma user list`.
+
+**Sửa**
+- Oracle Linux 9 trên máy 1 GB (OCI Always Free E2.1.Micro): trình cài tắt kho `ol9_oci_included` và `ol9_ksplice` khi máy
+  dưới 2 GB RAM (metadata khoảng 190 MB làm `dnf` hết bộ nhớ, máy treo), và tắt kdump khi máy dưới 2,5 GB RAM (image giữ
+  448 MB cho kdump, máy 1 GB chỉ còn 498 MB). RAM trở lại sau lần khởi động lại tiếp theo. Bật lại kho:
+  `dnf config-manager --set-enabled <tên kho>`.
+
 ## 0.3.0 — 2026-10-29
 
 Nâng cấp từ 0.2.0: **Cài đặt → Cập nhật → Cập nhật ngay**.
