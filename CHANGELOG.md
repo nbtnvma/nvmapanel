@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.3.2 — 2026-11-02
+
+Nâng cấp: **Cài đặt → Cập nhật → Cập nhật ngay**.
+
+**Sửa**
+- Cấp SSL ngay sau khi vừa tạo bản ghi DNS: panel hỏi thẳng máy chủ DNS của tên miền (ví dụ Cloudflare) thay vì máy chủ DNS
+  của nhà cung cấp VPS. Trước đây máy chủ DNS của cloud (Oracle Cloud…) nhớ kết quả "không có tên miền" tới 30 phút nên
+  SSL phải chờ, dù bản ghi đã đúng. Áp dụng cho website, tên miền của khách và nút kiểm tên miền panel.
+- Tên miền bật proxy Cloudflare trên máy không có IPv6: bước kiểm trước khi cấp SSL thử địa chỉ IPv4 trước rồi lần lượt từng
+  địa chỉ, thay vì chỉ địa chỉ đầu tiên.
+- Thông báo rõ khi tên miền **chưa có bản ghi DNS** ("Chưa thấy bản ghi DNS của …; nếu vừa tạo, đợi vài phút"), tách khỏi
+  trường hợp bản ghi trỏ sang máy khác. Hiện bằng ngôn ngữ của tài khoản trong tab SSL và thẻ Tên miền của khách; panel
+  vẫn tự thử lại mỗi 15 phút trong 48 giờ.
+
 ## 0.3.1 — 2026-11-01
 
 Nâng cấp: **Cài đặt → Cập nhật → Cập nhật ngay**.
