@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.3.3 — 2026-11-03
+
+Nâng cấp: **Cài đặt → Cập nhật → Cập nhật ngay**.
+
+**Quản lý tệp**
+- **Thùng rác** (như cPanel): xoá thì vào `.trash` của site, khôi phục về đúng chỗ, xoá vĩnh viễn từng mục hoặc dọn sạch;
+  tự xoá sau 30 ngày. Xoá vĩnh viễn ngay: Shift+Del hoặc menu chuột phải.
+- **Kéo thả để di chuyển**: kéo tệp/thư mục (chọn nhiều được) thả vào một thư mục trong danh sách, trên cây thư mục hoặc
+  trên đường dẫn.
+- **Mở trong tab riêng**: Quản lý tệp ở một tab trình duyệt riêng, không có thanh bên.
+- Giải nén tới 200.000 mục (trước 20.000, không đủ cho app Laravel có `vendor/`).
+
+**Sửa**
+- Nhập file SQL xuất từ MariaDB (hosting cPanel) vào MySQL: bỏ dòng "sandbox mode" của `mariadb-dump` mới và đổi
+  collation `uca1400` chỉ MariaDB có sang `utf8mb4_unicode_ci` (dữ liệu trong các dòng INSERT giữ nguyên).
+- Thông báo lỗi có số hiện sai dạng `%!d(float64=20000)`.
+
 ## 0.3.2 — 2026-11-02
 
 Nâng cấp: **Cài đặt → Cập nhật → Cập nhật ngay**.
