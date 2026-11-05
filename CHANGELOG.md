@@ -1,5 +1,65 @@
 # Changelog
 
+## 0.3.4 — 2026-11-05
+
+Gom các ghi nhận khi chuyển metools, webhook, kiepsau, 2w, license (nvma-core) và Paxmoria (nvma-apps) từ hosting cPanel lên
+OCI.
+
+**Website Laravel**
+- Thẻ **Laravel** trong trang website:
+  - kiểm tra app: cache còn đường dẫn của máy cũ (lỗi 500 sau khi chuyển), thiếu `vendor/`, `.env` có dòng Laravel không đọc
+    được (dấu cách không có ngoặc kép, chỗ trống `<…>`), APP_KEY trống, `public/storage` chưa liên kết hoặc là thư mục chép
+    từ hosting, storage không ghi được, APP_DEBUG bật trên production;
+  - so với máy chủ: `MAIL_MAILER=sendmail` mà máy chưa gửi được mail, app dùng Redis mà thiếu mật khẩu, PHP đang chặn
+    `proc_open`, worker chạy từ trước khi `.env` được sửa;
+  - nút **Hoàn tất cài đặt** (xoá cache máy cũ, mở quyền ghi, `storage:link`, `optimize`, `filament:optimize`), optimize,
+    optimize:clear, storage:link, migrate, tạo APP_KEY; tất cả chạy dưới user của site;
+  - danh sách worker của site, khởi động lại, thêm Laravel queue / Horizon / Reverb;
+  - **user Redis riêng cho site** (chỉ đọc ghi khoá của site, không xoá được dữ liệu site khác), kèm các dòng `.env`;
+  - đọc log `storage/logs`.
+- Giải nén app Laravel trong Quản lý tệp xong thì panel nhắc mở thẻ Laravel.
+- Deploy Git cho Laravel thêm `storage:link` và `filament:optimize`.
+- **Theo dõi site**: đường dẫn kiểm tra (ví dụ `/up`) được mở mỗi 2 phút; lỗi 2 lần liên tiếp thì báo Telegram và webhook
+  (`site.down`, `site.up`).
+
+**Worker**
+- Menu đổi tên thành **App, Worker & Game server**. Mẫu nhanh đặt tên theo site (`w2wchonj-queue`), nên mỗi site Laravel có
+  queue và Reverb riêng; điền sẵn giới hạn RAM (queue 256 MB, Horizon 512 MB, Reverb 256 MB) và `--timeout` cho queue.
+- Lệnh cứu hộ `nvma app list | start | stop | restart <tên> | logs <tên>`.
+- `nvma panel login <tên>` in một link đăng nhập dùng một lần, hạn 5 phút (khi quên mật khẩu hoặc không có thiết bị 2FA,
+  hoặc cho script kiểm tra tự động).
+
+**Email**
+- Module Email chỉ cài Postfix (đủ cho Chỉ gửi); Dovecot và OpenDKIM cài khi chọn Đầy đủ. Hết lỗi giả `postfix@-` khi cài.
+- **Relay theo tên miền gửi**: thư `@nvma.site` đi qua máy chủ mail của nvma.site, thư `@chonj.vn` qua máy chủ của chonj.vn.
+- Lưu relay thì panel thử đăng nhập SMTP ngay và báo lỗi trên form (vẫn lưu được nếu relay tạm thời không truy cập được);
+  bắt buộc mật khẩu khi có tài khoản; mật khẩu có dấu cách được chấp nhận.
+- Trang Email: thẻ "Bước tiếp" sau khi cài, cảnh báo thư nằm chờ khi dịch vụ gửi đang tắt, số thư bị hoãn kèm lý do, nút
+  **Gửi lại ngay**, gửi thử từ từng tên miền.
+
+**Tên miền, SSL, nginx**
+- Tên miền của khách bật được **kèm mọi subdomain** (`*.tên-miền`, chứng chỉ wildcard qua Cloudflare DNS-01); tối đa 1000 tên
+  miền mỗi site; `GET …/domains` có `?q=&offset=&limit=`.
+- Thẻ SSL kiểm tra từng tên site phục vụ: có trong chứng chỉ không (cả `*.tên-miền`), có đi qua Cloudflare không; gợi ý
+  Origin CA cho tên miền bật proxy.
+- **Cấu hình nginx riêng** của site sửa được ngay trong thẻ Nâng cao (admin), panel chạy `nginx -t` trước khi lưu.
+- Tắt được HSTS theo site (cho app tự gửi HSTS).
+- Token Cloudflare loại **Account API token** được chấp nhận; lỗi hiện nguyên văn từ Cloudflare.
+
+**Khác**
+- Tổng quan nhắc website chưa có lịch sao lưu, có nút tạo lịch mặc định (hằng ngày, giữ 7 bản).
+- **Nhận database có sẵn** (tạo ngoài panel) vào danh sách Database.
+- Trang website hiện ID cho API (admin); API nhận cả tên miền: `api/sites/paxmoria.com`.
+
+**Sửa**
+- Giải nén zip tạo trên Windows cho file quyền 666 (ai trên máy cũng ghi được): nay file 644, thư mục 755, `.env` 600.
+- Xoá site kèm file để sót thư mục `/home/<user>`, và user tạo sau cùng UID "nhận" thư mục đó.
+- Xoá site để lại cron `schedule:run` (mẫu Laravel) và worker của site, chạy lỗi mỗi phút: nay xoá cùng site.
+- Site PHP: đường dẫn có đuôi tĩnh do Laravel phục vụ (script Livewire, ảnh `/media/…`, `sitemap.xml`) báo 404.
+- Proxy `/app` (Reverb) bắt cả `/apple`, `/app.js`…: nay chỉ `/app` và `/app/…`.
+- Site có thư mục gốc con (`public`) báo 404 thay vì trang chờ trước khi tải code lên.
+- Chứng chỉ tự ký có thêm `127.0.0.1` cho chương trình gọi API từ cùng máy.
+
 ## 0.3.3 — 2026-11-03
 
 Nâng cấp: **Cài đặt → Cập nhật → Cập nhật ngay**.
