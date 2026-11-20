@@ -3,6 +3,61 @@
 All notable changes to NVMA Panel. Versions follow [Semantic Versioning](https://semver.org/).
 To upgrade, open **Panel settings → Updates → Update now**, or run the install command with `--upgrade`.
 
+## 0.3.5 — 2026-11-21
+
+For web games and other apps that run next to a website: a Laravel site with a Node game server on a WebSocket.
+
+### Fixed
+- **The panel's own memory grew by about 5 MB a day.** Every call the background tasks made to the agent left a goroutine
+  behind, so after two weeks the web process used around 100 MB instead of 25–30 MB. The panel now stays at its starting
+  size. Updating restarts it and frees that memory at once.
+- Static files were cached for 30 days even when they were a service worker or a web manifest: a new version of a PWA did
+  not reach its users. `sw.js`, `service-worker.js` and `*.webmanifest` are now revalidated on every load.
+- The uptime check kept an idle connection open after each request.
+
+### Added
+- **Internal paths** (Website → Advanced): paths that answer 404 from the Internet, also in the `/index.php/<path>` form,
+  and an **internal port** on `127.0.0.1` that serves only those paths. An app on the same server (a game server) calls the
+  website there instead of going out through the public name.
+- **Real visitor IP behind Cloudflare per website**, next to the server-wide switch. The SSL tab warns when a website is
+  proxied by Cloudflare while real IP is off, and shows Cloudflare's SSL mode for the zone (Flexible, Full, Full strict)
+  when the API token may read it.
+- **Health checks for apps**: a URL on the server is requested every minute. No answer three times in a row restarts the
+  app; HTTP 503 only sends an alert, so connected players are not dropped. State and restart count are shown on the Apps
+  page; Telegram alerts and webhooks `app.restarted`, `app.unhealthy`, `app.healthy`.
+- **Graceful stops and start order for apps**: stop timeout, stop signal (SIGTERM, SIGINT, SIGQUIT, SIGHUP) and "start
+  after" MySQL/MariaDB, Redis or PostgreSQL.
+- **Node.js version per app**: several majors can be installed side by side; an app pins its own, the others keep the
+  server default.
+- **Adopt a running service**: a hand-written systemd service that runs as a website's user becomes a panel app (logs,
+  restarts, limits, health check). The old unit is disabled, not deleted.
+- **Update from an archive** (Website → Deploy), for code that is uploaded instead of deployed from Git: the new version
+  replaces the old one, `.env`, `storage` and the paths you list stay with the site, a script runs as the site's user, apps
+  and workers restart, and the previous version is kept for a one-click rollback. A failing script rolls back by itself.
+- **Command line for install scripts**:
+  - `nvma site exec <domain> -- <command>` runs a command as the site's user, with the site's PHP and Composer, in the
+    site's folder (instead of `sudo composer install`, which leaves files owned by root);
+  - `nvma app add --site <domain> --command "…" [--port --kind --health --stop-timeout --signal --after --node]`;
+  - `nvma site proxy add|remove <domain> <path> [port]` and `nvma site internal <domain> <port|off> [path…]`;
+  - `nvma site list`.
+  These go through the panel's own API, so the same checks and plan limits apply as in the web interface.
+- **Laravel tab**: reports files in the app folder that are not owned by the site's user, with a **Fix ownership** button
+  (admin); a **free artisan command** box; hints for Reverb (`/app` proxy path and the `REVERB_*` lines) and for a sender
+  domain that has no relay of its own.
+- **One-click stack "Laravel + Node game server"**: Laravel site, MySQL, Redis, a Node game server on `/ws` with a health
+  check and a 30-second stop timeout, an internal port for `/internal/`, real visitor IP.
+- **TURN module (coturn)** for WebRTC voice and video: opens UDP/TCP 3478 and relay ports UDP 49160–49200, short-lived
+  credentials from a shared secret, relaying to private networks denied.
+- The website page reminds you when a website has no backup schedule, with a button that creates the default one.
+- Game asset types (`glb`, `gltf`, `wasm`, `ktx2`, `ogg`, `mp3`) get the 30-day static cache.
+- Panel updates fall back to a second download source when the server cannot reach GitHub; the package is verified the
+  same way.
+- `systemctl kill -s USR1 nvma-web` writes the panel's memory statistics and heap profile to `/var/lib/nvma/debug`
+  (root only), for diagnosing the panel itself.
+
+### Changed
+- Backups leave out the previous version kept by "Update from an archive" (`public_html.prev`).
+
 ## 0.3.4 — 2026-11-05
 
 Lessons from moving real Laravel applications from cPanel hosting to cloud servers.

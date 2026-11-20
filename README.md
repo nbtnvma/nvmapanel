@@ -21,8 +21,8 @@ curl -fsSL https://github.com/nbtnvma/nvmapanel/releases/latest/download/install
 
 The panel address and the admin password are printed at the end and saved to `/root/nvma-credentials.txt`.
 
-- **Current release: 0.3.4.** A specific version:
-  `curl -fsSL https://github.com/nbtnvma/nvmapanel/releases/download/v0.3.4/install.sh | sudo bash`
+- **Current release: 0.3.5.** A specific version:
+  `curl -fsSL https://github.com/nbtnvma/nvmapanel/releases/download/v0.3.5/install.sh | sudo bash`
 - If your provider has a **firewall in its dashboard** (always on Oracle Cloud, AWS, Google Cloud and Azure; optional at
   many VPS providers), allow ports 80, 443, the panel port (printed by the installer) and **the panel port + 1**
   (phpMyAdmin/Adminer) there too.
@@ -61,6 +61,7 @@ Websites, databases and settings are kept.
 | Clear the IP allowlist | `nvma panel allowlist clear` |
 | Restore the panel configuration | `nvma panel restore /var/backups/nvma/panel-….tar.gz` |
 | Restart or inspect a worker | `nvma app list` · `nvma app restart <name>` · `nvma app logs <name>` |
+| Run a command as a site's user | `nvma site exec example.com -- php artisan migrate --force` |
 
 ## Editions
 
@@ -99,8 +100,8 @@ curl -fsSL https://github.com/nbtnvma/nvmapanel/releases/latest/download/install
 
 Cài xong, địa chỉ panel và mật khẩu admin được in ra màn hình và lưu ở `/root/nvma-credentials.txt`.
 
-- **Bản hiện tại: 0.3.4.** Cài một phiên bản cụ thể:
-  `curl -fsSL https://github.com/nbtnvma/nvmapanel/releases/download/v0.3.4/install.sh | sudo bash`
+- **Bản hiện tại: 0.3.5.** Cài một phiên bản cụ thể:
+  `curl -fsSL https://github.com/nbtnvma/nvmapanel/releases/download/v0.3.5/install.sh | sudo bash`
 - Nếu nhà cung cấp có **tường lửa trong trang quản trị** (Oracle Cloud, AWS, Google Cloud, Azure luôn có; nhiều nhà cung cấp
   VPS có tuỳ chọn này), mở cả ở đó các cổng 80, 443, cổng panel (trình cài in ra) và **cổng panel + 1** (phpMyAdmin/Adminer).
 - Tuỳ chọn: `--port`, `--entry`, `--admin`, `--password`, `--php 8.3|none`, `--email`, `--domain`, `--no-firewall`, `--swap`,
@@ -138,6 +139,7 @@ Website, database và cấu hình được giữ nguyên.
 | Xoá danh sách IP được phép | `nvma panel allowlist clear` |
 | Khôi phục cấu hình panel | `nvma panel restore /var/backups/nvma/panel-….tar.gz` |
 | Khởi động lại hoặc xem worker | `nvma app list` · `nvma app restart <tên>` · `nvma app logs <tên>` |
+| Chạy lệnh bằng user của website | `nvma site exec example.com -- php artisan migrate --force` |
 
 ### Phiên bản
 
