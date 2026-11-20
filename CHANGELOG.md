@@ -1,229 +1,237 @@
 # Changelog
 
+All notable changes to NVMA Panel. Versions follow [Semantic Versioning](https://semver.org/).
+To upgrade, open **Panel settings → Updates → Update now**, or run the install command with `--upgrade`.
+
 ## 0.3.4 — 2026-11-05
 
-Gom các ghi nhận khi chuyển metools, webhook, kiepsau, 2w, license (nvma-core) và Paxmoria (nvma-apps) từ hosting cPanel lên
-OCI.
+Lessons from moving real Laravel applications from cPanel hosting to cloud servers.
 
-**Website Laravel**
-- Thẻ **Laravel** trong trang website:
-  - kiểm tra app: cache còn đường dẫn của máy cũ (lỗi 500 sau khi chuyển), thiếu `vendor/`, `.env` có dòng Laravel không đọc
-    được (dấu cách không có ngoặc kép, chỗ trống `<…>`), APP_KEY trống, `public/storage` chưa liên kết hoặc là thư mục chép
-    từ hosting, storage không ghi được, APP_DEBUG bật trên production;
-  - so với máy chủ: `MAIL_MAILER=sendmail` mà máy chưa gửi được mail, app dùng Redis mà thiếu mật khẩu, PHP đang chặn
-    `proc_open`, worker chạy từ trước khi `.env` được sửa;
-  - nút **Hoàn tất cài đặt** (xoá cache máy cũ, mở quyền ghi, `storage:link`, `optimize`, `filament:optimize`), optimize,
-    optimize:clear, storage:link, migrate, tạo APP_KEY; tất cả chạy dưới user của site;
-  - danh sách worker của site, khởi động lại, thêm Laravel queue / Horizon / Reverb;
-  - **user Redis riêng cho site** (chỉ đọc ghi khoá của site, không xoá được dữ liệu site khác), kèm các dòng `.env`;
-  - đọc log `storage/logs`.
-- Giải nén app Laravel trong Quản lý tệp xong thì panel nhắc mở thẻ Laravel.
-- Deploy Git cho Laravel thêm `storage:link` và `filament:optimize`.
-- **Theo dõi site**: đường dẫn kiểm tra (ví dụ `/up`) được mở mỗi 2 phút; lỗi 2 lần liên tiếp thì báo Telegram và webhook
-  (`site.down`, `site.up`).
+### Added
+- **Laravel tab** on every PHP website:
+  - checks the app: caches that still hold the old host's paths (the usual HTTP 500 after a move), missing `vendor/`,
+    `.env` lines Laravel cannot read (unquoted spaces, `<…>` placeholders), empty `APP_KEY`, `public/storage` not linked or
+    copied as a folder, `storage/` not writable, `APP_DEBUG` on in production;
+  - checks the server side: `MAIL_MAILER=sendmail` on a server that cannot send mail, Redis in use without a password,
+    `proc_open` disabled in PHP, workers started before the last `.env` change;
+  - **Finish setup** button (clears the old host's caches, makes storage writable, `storage:link`, `optimize`,
+    `filament:optimize`), plus optimize, optimize:clear, storage:link, migrate and key:generate, all run as the site's user;
+  - the site's workers: restart them, add a Laravel queue, Horizon or Reverb worker;
+  - **a Redis user per site** (reads and writes only the site's own keys, cannot flush other sites' data), with the `.env`
+    lines to copy;
+  - a viewer for `storage/logs`.
+- After a Laravel app is extracted in the file manager, the panel points to the Laravel tab.
+- Git deploys for Laravel also run `storage:link` and `filament:optimize`.
+- **Uptime checks**: a health path per website (for example `/up`) is requested every 2 minutes; two failures in a row send
+  a Telegram alert and a webhook (`site.down`, `site.up`).
+- Worker presets are named after the website (`shop-queue`), so every Laravel site has its own queue and Reverb worker,
+  with memory limits filled in (queue 256 MB, Horizon 512 MB, Reverb 256 MB) and `--timeout` for queues.
+- Rescue command `nvma app list | start | stop | restart <name> | logs <name>`.
+- `nvma panel login <name>` prints a one-time sign-in link, valid for 5 minutes (forgotten password, no 2FA device).
+- **Sender relays per domain**: mail from each sending domain can go through that domain's own SMTP relay.
+- Email page: a "next step" card after install, a warning when mail is queued while sending is off, the number of deferred
+  messages with the reason, a **Retry now** button, a test message from each domain.
+- Customer domains can include **every subdomain** (`*.domain`, wildcard certificate through Cloudflare DNS-01); up to 1,000
+  domains per website; `GET …/domains` accepts `?q=&offset=&limit=`.
+- The SSL tab checks every name the website serves: whether the certificate covers it (including `*.domain`) and whether it
+  goes through Cloudflare, and suggests an Origin CA certificate for proxied names.
+- **Custom nginx configuration** per website, edited on the Advanced tab (admin); the panel runs `nginx -t` before saving.
+- HSTS can be turned off per website (for apps that send their own header).
+- Cloudflare **account API tokens** are accepted; Cloudflare's own error message is shown.
+- The overview lists websites without a backup schedule and creates a default one (daily, keep 7) in one click.
+- **Adopt existing databases** (created outside the panel) into the Databases list.
+- The website page shows the site ID for the API (admin); the API also accepts the domain: `api/sites/example.com`.
 
-**Worker**
-- Menu đổi tên thành **App, Worker & Game server**. Mẫu nhanh đặt tên theo site (`w2wchonj-queue`), nên mỗi site Laravel có
-  queue và Reverb riêng; điền sẵn giới hạn RAM (queue 256 MB, Horizon 512 MB, Reverb 256 MB) và `--timeout` cho queue.
-- Lệnh cứu hộ `nvma app list | start | stop | restart <tên> | logs <tên>`.
-- `nvma panel login <tên>` in một link đăng nhập dùng một lần, hạn 5 phút (khi quên mật khẩu hoặc không có thiết bị 2FA,
-  hoặc cho script kiểm tra tự động).
+### Changed
+- The Apps menu is now **Apps, workers & game servers**.
+- The Email module installs only Postfix (enough for send-only mode); Dovecot and OpenDKIM are installed when full mode
+  is chosen.
+- Saving a relay tries the SMTP login at once and shows the error on the form (it can still be saved when the relay is
+  temporarily unreachable); a password is required when a user name is set; passwords may contain spaces.
 
-**Email**
-- Module Email chỉ cài Postfix (đủ cho Chỉ gửi); Dovecot và OpenDKIM cài khi chọn Đầy đủ. Hết lỗi giả `postfix@-` khi cài.
-- **Relay theo tên miền gửi**: thư `@nvma.site` đi qua máy chủ mail của nvma.site, thư `@chonj.vn` qua máy chủ của chonj.vn.
-- Lưu relay thì panel thử đăng nhập SMTP ngay và báo lỗi trên form (vẫn lưu được nếu relay tạm thời không truy cập được);
-  bắt buộc mật khẩu khi có tài khoản; mật khẩu có dấu cách được chấp nhận.
-- Trang Email: thẻ "Bước tiếp" sau khi cài, cảnh báo thư nằm chờ khi dịch vụ gửi đang tắt, số thư bị hoãn kèm lý do, nút
-  **Gửi lại ngay**, gửi thử từ từng tên miền.
-
-**Tên miền, SSL, nginx**
-- Tên miền của khách bật được **kèm mọi subdomain** (`*.tên-miền`, chứng chỉ wildcard qua Cloudflare DNS-01); tối đa 1000 tên
-  miền mỗi site; `GET …/domains` có `?q=&offset=&limit=`.
-- Thẻ SSL kiểm tra từng tên site phục vụ: có trong chứng chỉ không (cả `*.tên-miền`), có đi qua Cloudflare không; gợi ý
-  Origin CA cho tên miền bật proxy.
-- **Cấu hình nginx riêng** của site sửa được ngay trong thẻ Nâng cao (admin), panel chạy `nginx -t` trước khi lưu.
-- Tắt được HSTS theo site (cho app tự gửi HSTS).
-- Token Cloudflare loại **Account API token** được chấp nhận; lỗi hiện nguyên văn từ Cloudflare.
-
-**Khác**
-- Tổng quan nhắc website chưa có lịch sao lưu, có nút tạo lịch mặc định (hằng ngày, giữ 7 bản).
-- **Nhận database có sẵn** (tạo ngoài panel) vào danh sách Database.
-- Trang website hiện ID cho API (admin); API nhận cả tên miền: `api/sites/paxmoria.com`.
-
-**Sửa**
-- Giải nén zip tạo trên Windows cho file quyền 666 (ai trên máy cũng ghi được): nay file 644, thư mục 755, `.env` 600.
-- Xoá site kèm file để sót thư mục `/home/<user>`, và user tạo sau cùng UID "nhận" thư mục đó.
-- Xoá site để lại cron `schedule:run` (mẫu Laravel) và worker của site, chạy lỗi mỗi phút: nay xoá cùng site.
-- Site PHP: đường dẫn có đuôi tĩnh do Laravel phục vụ (script Livewire, ảnh `/media/…`, `sitemap.xml`) báo 404.
-- Proxy `/app` (Reverb) bắt cả `/apple`, `/app.js`…: nay chỉ `/app` và `/app/…`.
-- Site có thư mục gốc con (`public`) báo 404 thay vì trang chờ trước khi tải code lên.
-- Chứng chỉ tự ký có thêm `127.0.0.1` cho chương trình gọi API từ cùng máy.
+### Fixed
+- Archives made on Windows were extracted with world-writable files (mode 666): files are now 644, folders 755, `.env` 600.
+- Deleting a website with its files left `/home/<user>` behind, and the next user with the same UID inherited it.
+- Deleting a website left its `schedule:run` cron job and its workers running and failing every minute.
+- PHP websites: paths that look like static files but are served by Laravel (Livewire scripts, `/media/…` images,
+  `sitemap.xml`) returned 404.
+- The `/app` proxy path (Reverb) also caught `/apple`, `/app.js`…: it now matches only `/app` and `/app/…`.
+- Websites with a sub-folder web root (`public`) showed 404 instead of the placeholder page before any code was uploaded.
+- A false `postfix@-` failure reported while installing the Email module.
+- Self-signed certificates now include `127.0.0.1` for programs that call the API from the same server.
 
 ## 0.3.3 — 2026-11-03
 
-Nâng cấp: **Cài đặt → Cập nhật → Cập nhật ngay**.
+### Added
+- **File manager trash**: deleted items go to the website's `.trash`, can be restored to their original place, deleted
+  forever one by one or all at once, and are cleared after 30 days. Shift+Del or the right-click menu deletes at once.
+- **Drag and drop to move**: drag files and folders (several at a time) onto a folder in the list, the folder tree or the
+  path bar.
+- **Open in its own tab**: the file manager in a separate browser tab, without the sidebar.
 
-**Quản lý tệp**
-- **Thùng rác** (như cPanel): xoá thì vào `.trash` của site, khôi phục về đúng chỗ, xoá vĩnh viễn từng mục hoặc dọn sạch;
-  tự xoá sau 30 ngày. Xoá vĩnh viễn ngay: Shift+Del hoặc menu chuột phải.
-- **Kéo thả để di chuyển**: kéo tệp/thư mục (chọn nhiều được) thả vào một thư mục trong danh sách, trên cây thư mục hoặc
-  trên đường dẫn.
-- **Mở trong tab riêng**: Quản lý tệp ở một tab trình duyệt riêng, không có thanh bên.
-- Giải nén tới 200.000 mục (trước 20.000, không đủ cho app Laravel có `vendor/`).
+### Changed
+- Archives with up to 200,000 entries can be extracted (was 20,000, too few for a Laravel app with `vendor/`).
 
-**Sửa**
-- Nhập file SQL xuất từ MariaDB (hosting cPanel) vào MySQL: bỏ dòng "sandbox mode" của `mariadb-dump` mới và đổi
-  collation `uca1400` chỉ MariaDB có sang `utf8mb4_unicode_ci` (dữ liệu trong các dòng INSERT giữ nguyên).
-- Thông báo lỗi có số hiện sai dạng `%!d(float64=20000)`.
+### Fixed
+- Importing SQL dumps made by MariaDB (cPanel hosting) into MySQL: the "sandbox mode" line of recent `mariadb-dump`
+  versions is skipped and MariaDB-only `uca1400` collations become `utf8mb4_unicode_ci` (data in INSERT lines is untouched).
+- Error messages with a number were shown as `%!d(float64=20000)`.
 
 ## 0.3.2 — 2026-11-02
 
-Nâng cấp: **Cài đặt → Cập nhật → Cập nhật ngay**.
-
-**Sửa**
-- Cấp SSL ngay sau khi vừa tạo bản ghi DNS: panel hỏi thẳng máy chủ DNS của tên miền (ví dụ Cloudflare) thay vì máy chủ DNS
-  của nhà cung cấp VPS. Trước đây máy chủ DNS của cloud (Oracle Cloud…) nhớ kết quả "không có tên miền" tới 30 phút nên
-  SSL phải chờ, dù bản ghi đã đúng. Áp dụng cho website, tên miền của khách và nút kiểm tên miền panel.
-- Tên miền bật proxy Cloudflare trên máy không có IPv6: bước kiểm trước khi cấp SSL thử địa chỉ IPv4 trước rồi lần lượt từng
-  địa chỉ, thay vì chỉ địa chỉ đầu tiên.
-- Thông báo rõ khi tên miền **chưa có bản ghi DNS** ("Chưa thấy bản ghi DNS của …; nếu vừa tạo, đợi vài phút"), tách khỏi
-  trường hợp bản ghi trỏ sang máy khác. Hiện bằng ngôn ngữ của tài khoản trong tab SSL và thẻ Tên miền của khách; panel
-  vẫn tự thử lại mỗi 15 phút trong 48 giờ.
+### Fixed
+- SSL is issued right after a DNS record is created: the panel asks the domain's own nameservers (for example Cloudflare)
+  instead of the server provider's resolver. Some cloud resolvers remember "no such domain" for up to 30 minutes, which
+  delayed certificates although the record was correct. Applies to websites, customer domains and the panel hostname check.
+- Domains proxied by Cloudflare on servers without IPv6: the check before issuing tries IPv4 first and then every address,
+  instead of only the first one.
+- A clear message when a domain **has no DNS record yet**, separate from a record pointing to another server, shown in the
+  account's language on the SSL tab and the customer domains card. The panel still retries every 15 minutes for 48 hours.
 
 ## 0.3.1 — 2026-11-01
 
-Nâng cấp: **Cài đặt → Cập nhật → Cập nhật ngay**.
+### Security
+- `trust_proxy` only trusts `X-Forwarded-For` when the proxy also sends the `proxy_secret` (header `X-NVMA-Proxy`);
+  otherwise the header is ignored and a warning is logged. Before, a program running on the server itself could choose its
+  own IP when `trust_proxy` had been turned on by hand.
+- The DNS self-check before issuing SSL no longer connects to internal addresses (loopback, private networks, link-local)
+  and no longer returns response details to the user.
+- Admins can list and revoke the API tokens of every account (Accounts → API tokens of all accounts).
 
-**Bảo mật**
-- `trust_proxy` chỉ tin `X-Forwarded-For` khi proxy gửi kèm `proxy_secret` (header `X-NVMA-Proxy`); thiếu thì bỏ qua và ghi cảnh báo.
-  Trước đây một chương trình chạy trên chính máy chủ có thể tự chọn IP khi `trust_proxy` được bật tay.
-- Bước tự kiểm DNS trước khi cấp SSL không còn gọi tới địa chỉ nội bộ (loopback, mạng riêng, link-local) và không trả
-  chi tiết phản hồi về cho người dùng.
-- Admin xem và thu hồi được API token của mọi tài khoản (Tài khoản → API token của mọi tài khoản).
+### Added
+- **Rename a sign-in name** (Accounts → rename icon, or `nvma user rename <name> <new-name>` over SSH). Password, 2FA, API
+  tokens, websites and databases are kept; open sessions stay signed in.
 
-**Mới**
-- **Đổi tên đăng nhập** (Tài khoản → biểu tượng đổi tên, hoặc `nvma user rename <tên> <tên-mới>` qua SSH). Mật khẩu, 2FA,
-  API token, website và database giữ nguyên; phiên đang mở không bị đăng xuất.
-- Tài khoản quản trị đầu tiên của bản cài mới tên **`nvma`** (trước đây `admin`; máy đã cài giữ nguyên tên). Đặt tên khác
-  khi cài: `--admin <tên>`. Xem tên tài khoản: `nvma user list`.
+### Changed
+- The first admin account of a new install is named **`nvma`** (it was `admin`; existing installs keep their name). Choose
+  another name at install time with `--admin <name>`; list account names with `nvma user list`.
 
-**Sửa**
-- Oracle Linux 9 trên máy 1 GB (OCI Always Free E2.1.Micro): trình cài tắt kho `ol9_oci_included` và `ol9_ksplice` khi máy
-  dưới 2 GB RAM (metadata khoảng 190 MB làm `dnf` hết bộ nhớ, máy treo), và tắt kdump khi máy dưới 2,5 GB RAM (image giữ
-  448 MB cho kdump, máy 1 GB chỉ còn 498 MB). RAM trở lại sau lần khởi động lại tiếp theo. Bật lại kho:
-  `dnf config-manager --set-enabled <tên kho>`.
+### Fixed
+- Oracle Linux 9 on 1 GB servers: the installer disables the `ol9_oci_included` and `ol9_ksplice` repositories below 2 GB of
+  RAM (their metadata made `dnf` run out of memory and hang the server) and disables kdump below 2.5 GB (the image reserves
+  448 MB for it). The memory comes back after the next reboot. Re-enable a repository with
+  `dnf config-manager --set-enabled <name>`.
 
 ## 0.3.0 — 2026-10-29
 
-Nâng cấp từ 0.2.0: **Cài đặt → Cập nhật → Cập nhật ngay**.
+### Added
+- **Debian 12 and 13** (amd64, arm64): several PHP versions from packages.sury.org with automatic security updates, official
+  MySQL on amd64 (MariaDB on Debian ARM), Docker from the official repository, Dovecot 2.4 on Debian 13.
+- **API tokens** (Account → API tokens): read or read/write, expiry date, IP limit, shown once; creating one asks for the
+  password and 2FA again. They work for websites, databases, backups, apps, cron, jobs and customer domains; the Terminal,
+  file manager, accounts and settings still need a sign-in.
+- **Webhooks** (Pro, Monitoring → Alerts): HMAC-SHA256-signed JSON events for backups, deploys, failed services, expiring
+  SSL, high CPU/RAM/disk, websites created or deleted, malware and new panel versions, with retries.
+- **Customer domains** (Website → Overview, or the API): attach hundreds of customer domains to one website, each with its
+  own Let's Encrypt certificate that waits for DNS for 48 hours and renews itself. A website can also serve **every
+  subdomain** `*.domain` (admin) for multi-tenant apps.
+- **Malware scan** (ClamAV module, Settings → Malware scan): nightly at 3:30 and on demand, lowest priority, never follows
+  links; one-click quarantine; alerts through Telegram and webhooks.
+- **White-label** (Business, Settings → Branding): name, tagline, logo, favicon and colour; the version number can be hidden.
 
-**Mọi VPS, không chỉ cloud lớn**
-- **Debian 12 và 13** (amd64, arm64). PHP nhiều phiên bản từ packages.sury.org, tự cập nhật bảo mật; MySQL chính thức trên
-  amd64 (Debian ARM chỉ có MariaDB vì Debian và Oracle đều không có gói MySQL cho ARM); Docker từ kho chính thức; Dovecot 2.4
-  của Debian 13 được cấu hình theo cú pháp mới.
-- Trình cài dừng sớm và nói rõ lý do khi máy là container OpenVZ/LXC, ổ trống dưới 2 GB, cổng 80/443 đang bị chương trình
-  khác dùng, hoặc đã có panel khác (thêm CloudPanel, FastPanel, ISPConfig, Webmin, VestaCP); nhắc khi RAM dưới 1 GB.
-- Cuối quá trình cài và trang Tường lửa nhắc mở cổng ở tường lửa trong trang quản trị của **mọi** nhà cung cấp. Nhận diện
-  thêm Alibaba Cloud, Tencent Cloud.
+### Changed
+- The installer stops early with a clear reason on OpenVZ/LXC containers, with less than 2 GB of free disk, when ports
+  80/443 are already in use, or when another panel is installed (CloudPanel, FastPanel, ISPConfig, Webmin and VestaCP are
+  now detected too); it warns below 1 GB of RAM.
+- The end of the install and the Firewall page remind you to open ports in the dashboard firewall of **any** provider.
+  Alibaba Cloud and Tencent Cloud are recognised.
 
-**Mới**
-- **API token** (Tài khoản → API token): quyền đọc hoặc đọc/ghi, hạn dùng, giới hạn IP, chỉ hiện một lần, tạo token cần nhập
-  lại mật khẩu + 2FA. Dùng được cho website, database, sao lưu, ứng dụng, cron, tác vụ, tên miền của khách; Terminal, quản lý
-  file, tài khoản, cài đặt và license vẫn cần đăng nhập.
-- **Webhook** (Pro, Giám sát → Cảnh báo): sự kiện JSON ký HMAC-SHA256 cho sao lưu, deploy, dịch vụ lỗi, SSL sắp hết hạn,
-  CPU/RAM/ổ đĩa cao, website tạo/xoá, mã độc, bản panel mới; tự gửi lại khi lỗi.
-- **Tên miền của khách** (Website → Tổng quan, hoặc qua API): gắn hàng trăm tên miền riêng vào một website, mỗi tên một chứng
-  chỉ Let's Encrypt tự cấp, chờ DNS 48 giờ, tự gia hạn. **Website nhận mọi tên miền con** `*.domain` (admin) cho ứng dụng
-  nhiều khách.
-- **Quét mã độc** (module ClamAV, Cài đặt → Quét mã độc): mỗi đêm lúc 3:30 và theo yêu cầu, ưu tiên thấp nhất, không đi theo
-  link; cách ly file một cú nhấp; báo qua Telegram và webhook.
-- **White-label** (Business, Cài đặt → Thương hiệu riêng): tên, dòng giới thiệu, logo, favicon, màu; ẩn số phiên bản.
+### Security
+- A website cannot claim the hostname of the panel, the mail server or webmail (as a customer domain, alias or staging
+  site); regular accounts cannot take subdomains of those, or customer domains attached to someone else's website.
+- API tokens cannot create cron jobs that run as root; changing a password revokes all of the account's API tokens.
+- Malware quarantine scans the exact file again before moving it, so a crafted file name cannot make the panel move another
+  account's file.
+- Webhook delivery errors no longer reveal internal connection details; logs keep only the host of a webhook URL.
+- The MySQL repository key is pinned by SHA-256.
 
-**Bảo mật** (rà soát toàn bộ phần mới trước khi phát hành)
-- Website không thể nhận tên miền của panel, máy chủ mail hay webmail (kể cả khi gắn làm tên miền của khách, alias, staging);
-  tài khoản thường không lấy được tên miền con của chúng hay tên miền khách đã gắn vào website của người khác.
-- API token không tạo được cron chạy bằng root; đổi mật khẩu thì mọi API token của tài khoản bị thu hồi.
-- Cách ly mã độc quét lại đúng file trước khi di chuyển, nên tên file giả mạo không thể khiến panel di chuyển file của người khác.
-- Lỗi gửi webhook không còn lộ chi tiết kết nối nội bộ; log chỉ giữ tên máy của URL webhook.
-- Khoá repo MySQL được ghim bằng SHA-256.
-
-**Sửa lỗi**
-- **Email chế độ đầy đủ** không khởi động được trên Ubuntu, Debian 12 và AlmaLinux/Rocky/Oracle Linux 9 (Dovecot 2.3 báo
-  `Garbage after '{'`); trên Ubuntu/Debian, OpenDKIM còn không đọc được khoá DKIM nên mọi thư gửi đi bị từ chối
-  (`4.7.1 Service unavailable`). Sau khi nâng cấp, lưu lại cài đặt email một lần để áp dụng.
-- **Cài MySQL trên máy amd64** (Ubuntu, Debian, AlmaLinux/Rocky) lỗi vì khoá ký của repo.mysql.com hết hạn ngày 22/10/2025;
-  máy đã cài MySQL từ repo này còn bị hỏng `apt update` (và cập nhật bảo mật tự động). Panel tự thay khoá mới khi nâng cấp.
-- Cài PHP trên Debian có thể làm gói php-fpm lỗi (khởi động lại quá nhiều lần) và báo nhầm thiếu extension.
-- **AlmaLinux/Rocky/Oracle Linux 9**: cài MySQL dừng ở bước chuyển root sang đăng nhập qua socket; `validate_password` của
-  MySQL chặn tạo database và phpMyAdmin; SELinux chặn Dovecot ghi thư vào `/var/vmail`; `sudo nvma …` không tìm thấy lệnh.
-- Xoá bản sao lưu cuối cùng của một site thì xoá luôn thư mục rỗng của site đó.
-- Cài Webmail không còn ghi vào thư mục dữ liệu đã thuộc user webmail.
-- Cài phpMyAdmin lần đầu trên máy mới báo lỗi nhóm `nvmatools`.
-- Trình cài bị dừng giữa chừng: chạy lại sẽ cài tiếp thay vì báo "đã cài"; thông tin đăng nhập được lưu ngay khi tạo
-  tài khoản admin. Lệnh `nvma setup`/`nvma module` không còn tạo thư mục khoá kín khi shell root đặt umask 077.
+### Fixed
+- **Full email mode** did not start on Ubuntu, Debian 12 and AlmaLinux/Rocky/Oracle Linux 9 (Dovecot 2.3 reported
+  `Garbage after '{'`); on Ubuntu/Debian, OpenDKIM could not read the DKIM key, so outgoing mail was refused
+  (`4.7.1 Service unavailable`). After upgrading, save the email settings once to apply the fix.
+- **Installing MySQL on amd64** (Ubuntu, Debian, AlmaLinux/Rocky) failed because the repo.mysql.com signing key expired on
+  2025-10-22; servers that already used that repository also had a broken `apt update`. The panel replaces the key on upgrade.
+- Installing PHP on Debian could leave the php-fpm package failed (too many restarts) and report missing extensions.
+- **AlmaLinux/Rocky/Oracle Linux 9**: the MySQL install stopped while switching root to socket login; MySQL's
+  `validate_password` blocked database creation and phpMyAdmin; SELinux stopped Dovecot from writing mail to `/var/vmail`;
+  `sudo nvma …` could not find the command.
+- Deleting a website's last backup also removes its empty folder.
+- The Webmail install no longer writes into a data folder that already belongs to the webmail user.
+- The first phpMyAdmin install on a new server failed with an `nvmatools` group error.
+- An interrupted install continues when run again instead of reporting "already installed"; the credentials are saved as
+  soon as the admin account exists. `nvma setup` and `nvma module` no longer create locked folders under umask 077.
 
 ## 0.2.0 — 2026-10-26
 
-Bản chính thức đầu tiên của dòng 0.2 (gồm mọi thứ của 0.2.0-beta.1 và beta.2, liệt kê ở cuối mục này).
-Đã chạy thật trên Ubuntu 24.04 ARM (AWS EC2): website Laravel + MySQL + Redis + worker + Reverb, SSL, Cloudflare,
-SFTP/FTPS, sao lưu, license Pro.
+The first stable release of the 0.2 line, run on a real Ubuntu 24.04 ARM server with Laravel websites, MySQL, Redis,
+workers and Reverb, SSL, Cloudflare, SFTP/FTPS and backups.
 
-**Mới so với beta.2**
-- **phpMyAdmin vào thẳng**, chỉ thấy database của tài khoản; chạy trên **cổng riêng (cổng panel + 1)** để lỗi của công cụ
-  không chạm được panel. Mở thêm cổng này trên tường lửa của cloud.
-- **Quản lý tệp kiểu cPanel**: cây thư mục, chọn nhiều, sao chép/di chuyển, nén .zip, giải nén .zip/.tar/.tar.gz, lọc,
-  sắp xếp, menu chuột phải, phím tắt.
-- **PHP nâng cao**: thêm dòng php.ini theo phiên bản, bật/tắt/cài extension, `disable_functions` riêng từng site (admin).
-- **Cập nhật 1 bấm** (Cài đặt → Cập nhật): kiểm chữ ký bản phát hành, sao lưu cấu hình trước, tự quay lại bản cũ nếu lỗi.
-- **Sao lưu cấu hình panel** mỗi ngày (`/var/backups/nvma`), khôi phục bằng `nvma panel restore`.
-- **Sao lưu đám mây mã hoá** (rclone crypt); đích SFTP dùng khoá SSH riêng của panel (hiện khoá công khai trong form).
-- **Email**: chế độ đầy đủ có thể gửi thư ra qua dịch vụ trung gian (khi cloud chặn cổng 25); hướng dẫn mở cổng 25 theo
-  từng nhà cung cấp (AWS, Oracle, Google, Azure, DigitalOcean, Hetzner, Vultr, Linode).
-- **Bảo mật**: Terminal hỏi lại mật khẩu mỗi lần mở (tắt được hẳn); phiên đăng nhập tối đa 7 ngày, xem và đăng xuất từng
-  phiên; mã 2FA không dùng lại được; **fail2ban bật mặc định** (SSH, đăng nhập panel, mail, FTP); `mail()` của một site
-  không giả được tên miền khác; mỗi site có thư mục tạm riêng; cổng Docker theo tường lửa panel; quyền MySQL không còn
-  khớp nhầm database của tài khoản khác (dấu `_`).
-- **Rà soát bảo mật trước bản chính thức**: webmail chạy pool PHP riêng (không đọc được phiên phpMyAdmin); user MySQL của
-  phpMyAdmin không thể bị tài khoản khác chiếm trước; đổi vai trò tài khoản đăng xuất mọi phiên; xem khoá mã hoá sao lưu
-  cần cả mã 2FA; sao lưu/khôi phục cấu hình panel không đi theo link.
-- `nvma license diagnose`: kiểm tra từng bước trả lời của máy chủ license.
+### Added
+- **phpMyAdmin opens signed in** and shows only the account's databases. It runs on **its own port (panel port + 1)** so a
+  flaw in the tool cannot reach the panel; open that port in your provider's firewall too.
+- **cPanel-style file manager**: folder tree, multi-select, copy/move, zip, extract .zip/.tar/.tar.gz, filter, sort,
+  right-click menu, keyboard shortcuts.
+- **Advanced PHP**: extra php.ini lines per version, install/enable/disable extensions, per-site `disable_functions` (admin).
+- **One-click update** (Settings → Updates): verifies the signed release, backs up the configuration first and goes back to
+  the previous version if the new one fails.
+- **Daily panel configuration backups** (`/var/backups/nvma`), restored with `nvma panel restore`.
+- **Encrypted cloud backups** (rclone crypt); SFTP targets use the panel's own SSH key (its public key is shown on the form).
+- **Email**: full mode can send through a relay when the provider blocks port 25; per-provider instructions to get port 25
+  opened (AWS, Oracle, Google, Azure, DigitalOcean, Hetzner, Vultr, Linode).
 
-**Sửa lỗi so với beta.2**
-- Cloudflare proxied báo lỗi 525.
-- Bật "Tự động cấp SSL" cho site có sẵn không cấp chứng chỉ.
-- `npm` của user site không chạy được; cron `cd … && php artisan` dùng sai phiên bản PHP.
-- License: gói có giới hạn bị báo nhầm "sai chữ ký"; key không có feature bị hạ về Free sau khi khởi động lại.
-- Đặt tên miền panel đang bật proxy Cloudflare thì không vào được: nay có cảnh báo và cách sửa.
-- So sánh phiên bản thử nghiệm (beta.3 > beta.2).
-- Cài Webmail lỗi "no SnappyMail tarball" khi bản SnappyMail mới nhất không kèm gói.
+### Security
+- The Terminal asks for the password each time it is opened (it can be disabled entirely); sessions last at most 7 days and
+  can be listed and signed out one by one; a 2FA code cannot be used twice; **fail2ban is on by default** (SSH, panel login,
+  mail, FTP); a site's `mail()` cannot forge another domain; every site has its own temporary folder; Docker ports follow
+  the panel firewall; MySQL grants no longer match another account's database by accident (the `_` wildcard).
+- Review before the stable release: webmail runs in its own PHP pool (it cannot read phpMyAdmin sessions); phpMyAdmin's
+  MySQL user cannot be pre-created by another account; changing an account's role signs out all its sessions; viewing the
+  backup encryption key also needs the 2FA code; panel configuration backup and restore never follow links.
 
-**Đã có từ beta.1/beta.2**
+### Fixed
+- Websites proxied by Cloudflare returned error 525.
+- Turning on "Issue SSL automatically" for an existing website did not issue a certificate.
+- `npm` did not run for site users; cron jobs written as `cd … && php artisan` used the wrong PHP version.
+- Setting a panel hostname that is proxied by Cloudflare locked you out: there is now a warning and a way back.
+- Pre-release versions are compared correctly (beta.3 > beta.2).
+- The Webmail install failed with "no SnappyMail tarball" when the newest SnappyMail release had no package attached.
 
-**Free**
-- Website Laravel: thư mục gốc tuỳ chọn (`public/`), mẫu Laravel (scheduler tự thêm), PHP CLI và Composer theo từng site.
-- SSL tự cấp khi tạo website (chờ DNS và tự thử lại 48 giờ), chọn nhà cung cấp Let's Encrypt / ZeroSSL / Google / ACME tuỳ chỉnh, wildcard qua Cloudflare, Cloudflare Origin CA, tạo CSR cho chứng chỉ thương mại.
-- PHP riêng cho từng domain (memory, upload, thời gian chạy…), quy tắc website (chuyển hướng, khoá thư mục bằng mật khẩu, chặn IP, trang lỗi, chống hotlink).
-- MySQL 8.4 LTS (hoặc MariaDB), phpMyAdmin, Adminer, nhập file SQL lớn (.sql/.sql.gz).
-- SFTP (chroot) với SSH key, tài khoản FTP/FTPS (Pure-FTPd).
-- Email: chỉ gửi qua SES/Resend/Brevo hoặc đầy đủ (Postfix, Dovecot, DKIM, chuyển tiếp, trả lời tự động), webmail SnappyMail.
-- Zone Editor: Cloudflare DNS và PowerDNS, tự tạo bản ghi A khi thêm website, tạo bản ghi email một lần bấm.
-- Sao lưu website và database tại máy theo lịch, khôi phục, tải về. Biểu đồ tài nguyên 24 giờ. Cloudflare real IP.
+## 0.2.0-beta.2 — 2026-10-23
 
-**Pro — Game & Realtime**
-- Cài nhanh cả bộ: Laravel realtime (PHP, MySQL, Redis, Horizon/queue, Reverb) và Node/Go realtime (Node, Redis, PostgreSQL/PostGIS, PgBouncer).
-- Worker nhiều tiến trình, proxy theo đường dẫn (WebSocket), chế độ hiệu năng PHP-FPM, tinh chỉnh MySQL/Redis/Nginx, giới hạn request.
-- Giám sát dịch vụ, cảnh báo Telegram, deploy Git không gián đoạn + webhook, nhân bản staging, sao lưu lên S3/R2/B2/SFTP.
+### Added
+- Cloud servers (Oracle Cloud, AWS, Google Cloud, Azure): the panel finds the public IP behind NAT (DNS, email, PTR),
+  lists the ports to open in the platform firewall and removes the catch-all iptables REJECT rules of Oracle's Ubuntu
+  images. Oracle Linux 9 is supported. MySQL on Ubuntu ARM uses Ubuntu's packages.
+- **Port check** (Firewall → Port check): listening services, whether the firewall allows them, a warning when an internal
+  service is exposed, and a connection test through the public IP (through the cloud firewall).
 
-**Chung**
-- Giấy phép qua SDK chính thức của license.nvma.site 2.1: số tài khoản theo giới hạn của gói, thông báo khi có bản mới (thông tin đã ký).
-- Cài đặt từ GitHub Releases hoặc bản sao trên license.nvma.site; chữ ký Ed25519 được kiểm tra ở cả hai nguồn.
-- Logo NVMA chính thức.
-- Cloud (Oracle Cloud, AWS, Google Cloud, Azure): tự nhận IP công khai khi máy nằm sau NAT (DNS, email, PTR), nhắc mở cổng ở tường lửa nền tảng, gỡ luật iptables REJECT có sẵn của image Ubuntu trên Oracle Cloud. Hỗ trợ Oracle Linux 9. MySQL trên Ubuntu ARM dùng gói của Ubuntu.
-- Bảo mật: rà soát toàn bộ và sửa các lỗi cô lập giữa website (trình quản lý file, log, FTP, symlink, khôi phục sao lưu), quyền user Linux, quyền DNS, Redis có mật khẩu, giới hạn đăng nhập, ràng buộc người gửi email. Tự cập nhật bảo mật hệ điều hành.
-- Kiểm tra cổng (Tường lửa → Kiểm tra cổng): dịch vụ đang lắng nghe, tường lửa có cho phép không, cảnh báo dịch vụ nội bộ bị mở ra ngoài, và thử kết nối qua IP công khai (đi qua tường lửa của cloud).
+### Security
+- Full review: stricter isolation between websites (file manager, logs, FTP, symlinks, backup restore), Linux user and DNS
+  permissions, a Redis password, login rate limiting, mailboxes that send only as themselves, automatic OS security updates.
 
-## 0.1.0 — MVP
-- Engine riêng (Go), web không root + agent root, SQLite, Ubuntu 22.04/24.04, AlmaLinux 9, Rocky 9.
-- Website PHP/tĩnh/proxy, Let's Encrypt, PHP 7.4–8.4, MariaDB, PostgreSQL, Redis, Node.js, Docker, Fail2ban.
-- Apps (Pro), cron, tường lửa, quản lý file, terminal, 2FA, nhật ký, license Free/Pro/Business/Agency.
+## 0.2.0-beta.1 — 2026-10-22
+
+### Added
+- **Laravel websites**: custom web root (`public/`), a Laravel template (scheduler added for you), PHP CLI and Composer per
+  site.
+- **Automatic SSL** on site creation (waits for DNS and retries for 48 hours) with Let's Encrypt, ZeroSSL, Google or a custom
+  ACME provider, wildcards through Cloudflare, Cloudflare Origin CA and CSRs for commercial certificates.
+- Per-domain PHP settings (memory, upload size, execution time…); site rules (redirects, password-protected folders, IP
+  blocking, error pages, hotlink protection).
+- MySQL 8.4 LTS (or MariaDB), phpMyAdmin, Adminer, large SQL imports (.sql/.sql.gz).
+- Chrooted SFTP with SSH keys; FTP/FTPS accounts (Pure-FTPd).
+- Email: send-only through SES/Resend/Brevo, or a full mail server (Postfix, Dovecot, DKIM, forwarders, autoreply) with
+  SnappyMail webmail.
+- Zone editor for Cloudflare DNS and PowerDNS: an A record with each website, one-click mail records.
+- Scheduled local backups of websites and databases, restore and download; 24-hour resource charts; Cloudflare real IP.
+- **Pro — Game & Realtime**: one-click Laravel realtime (PHP, MySQL, Redis, Horizon/queue, Reverb) and Node/Go realtime
+  (Node, Redis, PostgreSQL/PostGIS, PgBouncer) stacks; multi-process workers, path-based WebSocket proxy, PHP-FPM
+  performance modes, MySQL/Redis/Nginx tuning, request rate limiting; service monitoring, Telegram alerts, zero-downtime
+  Git deploys with a webhook, staging clones, backups to S3/R2/B2/SFTP.
+- One-line install from GitHub Releases with signed packages.
+
+## 0.1.0 — 2026-10-21
+
+- Own engine written in Go: a non-root web process and a root agent, SQLite; Ubuntu 22.04/24.04, AlmaLinux 9, Rocky Linux 9.
+- PHP, static and proxy websites, Let's Encrypt, PHP 7.4–8.4, MariaDB, PostgreSQL, Redis, Node.js, Docker, Fail2ban.
+- Apps (Pro), cron, firewall, file manager, terminal, 2FA, audit log; Free, Pro, Business and Agency plans.
