@@ -3,6 +3,53 @@
 All notable changes to NVMA Panel. Versions follow [Semantic Versioning](https://semver.org/).
 To upgrade, open **Panel settings → Updates → Update now**, or run the install command with `--upgrade`.
 
+## 0.4.0 — 2026-11-27
+
+PHP 8.5, an assistant inside the panel, and a way for AI tools to work with your server.
+
+### Fixed
+- **Changing a website's PHP version could stop PHP for other websites.** The version the website left and the one it
+  moved to were reloaded in no particular order while both still used the website's socket; when the new one came first,
+  its PHP-FPM did not start and every website on that version was down until the next restart. The versions now hand the
+  socket over in order, and a PHP-FPM that did not come back is started again.
+- **Installing another PHP version moved phpMyAdmin and Adminer to it**, with the same effect as above for the newly
+  installed version. The database tools now stay on the PHP version they run on.
+
+### Added
+- **PHP 8.5.** OPcache is part of PHP from this version on: it shows as "Built in" and there is no package to install.
+  Every version on the PHP page shows until when it gets security fixes, and versions past that date are marked.
+- **Check before a PHP version change** (Website → Overview, after picking another version): extensions the website loads
+  today that the new version lacks, Composer's platform requirements, and a syntax check of the app's own files with the
+  new version. The check changes nothing.
+- **A PHP version change that can go back by itself**: the website's workers restart on the new version, and when the
+  website has a health path that stops answering 200, the previous version is put back and the reason is shown.
+- **Assistant** (Panel settings → AI assistant and MCP; off until you turn it on). Ask about the panel or about your own
+  server: the assistant looks at lists, checks and logs to answer, in the language you chose for the panel, and an "Ask AI"
+  button sits next to errors and failed jobs. It works with your own key for Claude, ChatGPT, Gemini or OpenRouter, or with
+  a model on your own machine. It reads and explains and never changes the server by itself. Nothing is sent before someone
+  asks; passwords, keys and tokens are hidden first; an administrator decides who may use it and whether it may read logs.
+  Open it with the floating button (drag it where you like) or Ctrl+K.
+- **MCP for AI tools** such as Claude Code, Codex and Cursor: `nvma mcp` over SSH (no port to open, no token), or HTTPS with
+  an API token when an administrator allows it. 34 tools for websites, databases, apps, backups and logs. A read-only token
+  gets read tools only, deleting needs a confirmation code, and the terminal, files, accounts and firewall rules are never
+  offered. Every change is in the audit log.
+- **Guide** inside the panel (Personal → Guide), in English and Vietnamese: the same text the assistant answers from,
+  readable without the assistant and without Internet.
+- **Sign in with NVMA ID** (Settings → Sign in with NVMA ID, off until you connect it). One NVMA ID can sign in as one
+  administrator of the server. Connecting is done only from inside the panel: the panel password (and 2FA) again, approval
+  at id.nvma.site, then a last confirmation in the panel that shows the NVMA ID's e-mail address. Every sign-in needs
+  two-step verification on the NVMA ID within the last 5 minutes and a confirmation screen at id.nvma.site; the panel
+  checks the signed answer against the issuer built into it (`https://id.nvma.site`) and the NVMA ID it stored, and records
+  the sign-in in the audit log. id.nvma.site holds no password or key of the server. Sessions opened this way still ask for
+  the panel password for the Terminal, the backup key and password changes.
+- `nvma panel nvmaid` shows the connection; `nvma panel nvmaid off` removes it and signs the linked account out everywhere.
+- **Help & Support** link at the bottom of the menu: opens the NVMA support desk in a new tab. On a white-labelled panel
+  only administrators see it.
+
+### Changed
+- New servers are installed with PHP 8.4. New websites get the version you chose as default, else 8.4 when it is
+  installed; the newest PHP version is offered and never chosen by itself.
+
 ## 0.3.5 — 2026-11-21
 
 For web games and other apps that run next to a website: a Laravel site with a Node game server on a WebSocket.

@@ -5,7 +5,7 @@
 **The lightweight control panel for your VPS/Server.** Websites, databases, email, Node/Go apps and game servers from one
 clean interface.
 
-[Website](https://app.nvma.site/controlpanel/) · [Plans](https://license.nvma.site/) · [Changelog](CHANGELOG.md) · [Issues](../../issues) · [Tiếng Việt](#tiếng-việt)
+[Website](https://app.nvma.site/controlpanel/) · [Guide](https://app.nvma.site/controlpanel/docs.php) · [Plans](https://license.nvma.site/) · [Changelog](CHANGELOG.md) · [Issues](../../issues) · [Tiếng Việt](#tiếng-việt)
 
 > This repository hosts the installer, the release packages and the issue tracker.
 
@@ -21,12 +21,12 @@ curl -fsSL https://github.com/nbtnvma/nvmapanel/releases/latest/download/install
 
 The panel address and the admin password are printed at the end and saved to `/root/nvma-credentials.txt`.
 
-- **Current release: 0.3.5.** A specific version:
-  `curl -fsSL https://github.com/nbtnvma/nvmapanel/releases/download/v0.3.5/install.sh | sudo bash`
+- **Current release: 0.4.0.** A specific version:
+  `curl -fsSL https://github.com/nbtnvma/nvmapanel/releases/download/v0.4.0/install.sh | sudo bash`
 - If your provider has a **firewall in its dashboard** (always on Oracle Cloud, AWS, Google Cloud and Azure; optional at
   many VPS providers), allow ports 80, 443, the panel port (printed by the installer) and **the panel port + 1**
   (phpMyAdmin/Adminer) there too.
-- Options: `--port`, `--entry`, `--admin`, `--password`, `--php 8.3|none`, `--email`, `--domain`, `--no-firewall`, `--swap`,
+- Options: `--port`, `--entry`, `--admin`, `--password`, `--php 8.4|none`, `--email`, `--domain`, `--no-firewall`, `--swap`,
   `--upgrade` (see `--help`).
 
 Every release ships `nvma-panel-linux.tar.gz` with a `.sha256` checksum and a `.sig` signature; `install.sh` verifies both
@@ -56,6 +56,7 @@ Websites, databases and settings are kept.
 | Sign in without the password | `nvma panel login nvma` (one-time link, valid for 5 minutes) |
 | Reset a password | `nvma user passwd nvma` |
 | Turn off 2FA | `nvma user 2fa-reset nvma` |
+| Turn off Sign in with NVMA ID | `nvma panel nvmaid off` (state: `nvma panel nvmaid`) |
 | Rename a sign-in name | `nvma user rename nvma new-name` |
 | Change the port / secret path | `nvma panel port 28417` · `nvma panel path reset` |
 | Clear the IP allowlist | `nvma panel allowlist clear` |
@@ -84,7 +85,7 @@ Installer, scripts and documentation in this repository: **MIT**. The NVMA Panel
 **Control panel nhẹ cho VPS/Server của bạn.** Website, database, email, ứng dụng Node/Go và game server trên một giao diện
 gọn gàng.
 
-[Trang sản phẩm](https://app.nvma.site/controlpanel/) · [Bảng giá](https://license.nvma.site/) · [Nhật ký thay đổi](CHANGELOG.md) · [Báo lỗi](../../issues)
+[Trang sản phẩm](https://app.nvma.site/controlpanel/) · [Hướng dẫn](https://app.nvma.site/controlpanel/docs.php?lang=vi) · [Bảng giá](https://license.nvma.site/) · [Nhật ký thay đổi](CHANGELOG.md) · [Báo lỗi](../../issues)
 
 > Repository này chứa trình cài, các bản phát hành và nơi báo lỗi.
 
@@ -100,11 +101,11 @@ curl -fsSL https://github.com/nbtnvma/nvmapanel/releases/latest/download/install
 
 Cài xong, địa chỉ panel và mật khẩu admin được in ra màn hình và lưu ở `/root/nvma-credentials.txt`.
 
-- **Bản hiện tại: 0.3.5.** Cài một phiên bản cụ thể:
-  `curl -fsSL https://github.com/nbtnvma/nvmapanel/releases/download/v0.3.5/install.sh | sudo bash`
+- **Bản hiện tại: 0.4.0.** Cài một phiên bản cụ thể:
+  `curl -fsSL https://github.com/nbtnvma/nvmapanel/releases/download/v0.4.0/install.sh | sudo bash`
 - Nếu nhà cung cấp có **tường lửa trong trang quản trị** (Oracle Cloud, AWS, Google Cloud, Azure luôn có; nhiều nhà cung cấp
   VPS có tuỳ chọn này), mở cả ở đó các cổng 80, 443, cổng panel (trình cài in ra) và **cổng panel + 1** (phpMyAdmin/Adminer).
-- Tuỳ chọn: `--port`, `--entry`, `--admin`, `--password`, `--php 8.3|none`, `--email`, `--domain`, `--no-firewall`, `--swap`,
+- Tuỳ chọn: `--port`, `--entry`, `--admin`, `--password`, `--php 8.4|none`, `--email`, `--domain`, `--no-firewall`, `--swap`,
   `--upgrade` (xem `--help`).
 
 Mỗi bản phát hành có `nvma-panel-linux.tar.gz` kèm mã `.sha256` và chữ ký `.sig`; `install.sh` kiểm tra cả hai trước khi
@@ -134,6 +135,7 @@ Website, database và cấu hình được giữ nguyên.
 | Đăng nhập không cần mật khẩu | `nvma panel login nvma` (link dùng một lần, hạn 5 phút) |
 | Đặt lại mật khẩu | `nvma user passwd nvma` |
 | Tắt 2FA | `nvma user 2fa-reset nvma` |
+| Tắt đăng nhập bằng NVMA ID | `nvma panel nvmaid off` (xem trạng thái: `nvma panel nvmaid`) |
 | Đổi tên đăng nhập | `nvma user rename nvma ten-moi` |
 | Đổi cổng / đường dẫn bí mật | `nvma panel port 28417` · `nvma panel path reset` |
 | Xoá danh sách IP được phép | `nvma panel allowlist clear` |
